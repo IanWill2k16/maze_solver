@@ -46,7 +46,7 @@ class Maze():
         if self._win is None:
             return
         self._win.redraw()
-        # time.sleep(0.05)
+        time.sleep(0.005)
 
     def _break_entrance_and_exit(self):
         start_cell = self._cells[0][0]
@@ -98,6 +98,41 @@ class Maze():
             self._break_walls_r(to_visit[direction][0], to_visit[direction][1])
 
     def _reset_cells_visited(self):
-         for i in range(len(self._cells)):
-              for j in range(len(self._cells[i])):
-                   self._cells[i][j].visited = False
+        for i in range(len(self._cells)):
+            for j in range(len(self._cells[i])):
+                self._cells[i][j]._visited = False
+
+    def solve(self):
+        return self._solve_r(0, 0)
+    
+    def _solve_r(self, i, j):
+        current = self._cells[i][j]
+        end_cell = self._cells[self._num_cols - 1][self._num_rows - 1]
+        
+        self._animate()
+        current._visited = True
+
+        if current == end_cell:
+              return True
+        
+        if i + 1 < self._num_cols and current.has_right_wall == False and self._cells[i + 1][j]._visited == False:
+                current.draw_move(self._cells[i + 1][j])
+                if self._solve_r(i + 1, j):
+                     return True
+                self._cells[i + 1][j].draw_move(current, True)
+        if i - 1 >= 0 and current.has_left_wall == False and self._cells[i - 1][j]._visited == False:
+                current.draw_move(self._cells[i - 1][j])
+                if self._solve_r(i - 1, j):
+                     return True
+                self._cells[i - 1][j].draw_move(current, True)
+        if j + 1 < self._num_rows and current.has_bottom_wall == False and self._cells[i][j + 1]._visited == False:
+                current.draw_move(self._cells[i][j + 1])
+                if self._solve_r(i, j + 1):
+                     return True
+                self._cells[i][j + 1].draw_move(current, True)
+        if j - 1 >= 0 and current.has_top_wall == False and self._cells[i][j - 1]._visited == False:
+                current.draw_move(self._cells[i][j - 1])
+                if self._solve_r(i, j - 1):
+                     return True
+                self._cells[i][j - 1].draw_move(current, True)
+        return False
